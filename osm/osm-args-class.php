@@ -82,8 +82,19 @@ class cOsm_arguments
 }
 
   private function setMapSize($a_width,  $a_height){
+    
     $width = sanitize_text_field($a_width);
-    $height = sanitize_text_field($a_height);   
+    $semicolon_position = strpos($width, ';');
+    if ($semicolon_position !== false) {
+      $width = substr($width, 0, $semicolon_position);
+    } 
+
+    $height = sanitize_text_field($a_height);
+    $semicolon_position = strpos($height, ';');
+    if ($semicolon_position !== false) {
+      $height = substr($height, 0, $semicolon_position);
+    } 
+
     
     $pos = strpos($width, "%");
     if ($pos == false) {

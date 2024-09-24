@@ -164,7 +164,6 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
     <div id="Marker_Div"><br/>
     <!-- marker info is printed here when clicking in the map -->
     </div><br/>
-</div>
         <a class="button" onClick="osm_savePostMarker(); osm_generateAddMarkerSC();"> <?php _e('Save marker and generate shortcode','OSM')?> </a><br/><br/>      
 
  </div> <!-- id="tab_add_marker" -->

@@ -15,17 +15,12 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-    define('DEFAULT_MAP_WIDTH', '100%');
-    define('DEFAULT_MAP_HEIGHT', '300');
-    define('DEFAULT_MAP_ZOOM', '4');
-    define('DEFAULT_MAP_CENTER', OSM_default_lat . ',' . OSM_default_lon);
-
     extract(shortcode_atts(array(
     // size of the map
-    'width'      => DEFAULT_MAP_WIDTH,
-    'height'     => DEFAULT_MAP_HEIGHT,
-    'map_center' => DEFAULT_MAP_CENTER,
-    'zoom'       => DEFAULT_MAP_ZOOM,
+    'width'      => DEFAULT_MAP_V3_WIDTH,
+    'height'     => DEFAULT_MAP_V3_HEIGHT,
+    'map_center' => DEFAULT_MAP_V3_CENTER,
+    'zoom'       => DEFAULT_MAP_V3_ZOOM,
     'map_api_key' => 'NoKey',
     'file_list'  => 'NoFile',
     'file_color_list'  => 'NoColor',
@@ -434,33 +429,33 @@ else{
 			 $output .= $MapName.'.addLayer(vectorMarkerLayer);';
 		  }
 		  elseif (($post_marked) && ($tagged_param != "cluster")) {
-		
-		
-			$tagged_icon = new cOsm_icon($default_icon->getIconName());
+                    $tagged_icon = new cOsm_icon($default_icon->getIconName());
 
-			$MarkerArray = OSM::OL3_createMarkerList('osm_l', $tagged_filter, 'Osm_None', $tagged_type, 'Osm_All', $sc_args->getTaxonomy());
+                    $MarkerArray = OSM::OL3_createMarkerList('osm_l', $tagged_filter, 'Osm_None', $tagged_type, 'Osm_All', $sc_args->getTaxonomy());
 
-			$NumOfMarker = count($MarkerArray);
-			$Counter = 0;
-			$output .= '
-			  var vectorMarkerSource = new ol.source.Vector({});
-			  var vectorMarkerLayer = new ol.layer.Vector({
-				source: vectorMarkerSource,
-				zIndex: 92
-			   });
-			';
-			foreach( $MarkerArray as $Marker ) {
-			  if ($MarkerArray[$Counter]['Marker'] != ""){
-				$tagged_icon->setIcon($MarkerArray[$Counter]['Marker']);
-			  }
-			  else{
-				$tagged_icon->setIcon($default_icon->getIconName());
-			  }
+                    if (isset($MarkerArray) && is_array($MarkerArray)) {
+                      $NumOfMarker = count($MarkerArray);
+                      $Counter = 0;
+                      $output .= '
+                      var vectorMarkerSource = new ol.source.Vector({});
+                      var vectorMarkerLayer = new ol.layer.Vector({
+                        source: vectorMarkerSource,
+                        zIndex: 92
+                      });
+                      ';
 
-			   $MarkerText = addslashes($MarkerArray[$Counter]['text']);
+                      foreach( $MarkerArray as $Marker ) {
+                        if ($MarkerArray[$Counter]['Marker'] != ""){
+                          $tagged_icon->setIcon($MarkerArray[$Counter]['Marker']);
+                        }
+                        else{
+                          $tagged_icon->setIcon($default_icon->getIconName());
+                        }
+                        
+                        $MarkerText = addslashes($MarkerArray[$Counter]['text']);
 
-			 $output .= '
-				var iconStyle'.$Counter.' = new ol.style.Style({
+                        $output .= '
+                          var iconStyle'.$Counter.' = new ol.style.Style({
 				  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */({
 					anchor: [('.$tagged_icon->getIconOffsetwidth().'*-1),('.$tagged_icon->getIconOffsetheight().'*-1)],
 					anchorXUnits: "pixels",
@@ -478,9 +473,9 @@ else{
 				vectorMarkerSource.addFeature(iconFeature'.$Counter.');
 			   ';
 			   $Counter = $Counter +1;
-			} // foreach(MarkerArray)
-
-			$output .= $MapName.'.addLayer(vectorMarkerLayer);';
+                      } // foreach(MarkerArray)
+                    }
+                    $output .= $MapName.'.addLayer(vectorMarkerLayer);';
 
 		   }
 

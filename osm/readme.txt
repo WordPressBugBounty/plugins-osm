@@ -3,7 +3,7 @@ Contributors: MiKa
 Tags: map, OpenStreetMap, KML, GPX, OpenSeaMap
 Requires at least: 3.0
 Tested up to: 6.6.1
-Stable tag: 6.1.1
+Stable tag: 6.1.2
 License: GPLv2
 Requires PHP: 5.3
 

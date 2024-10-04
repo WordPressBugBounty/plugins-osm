@@ -234,7 +234,7 @@ private function setMapZoom($a_map_zoom){
     $zoom = substr($zoom, 0, $semicolon_position);
   } 
   $int_zoom = (int) $zoom;
-  if (is_numeric($zoom) && $int_zoom > 0 && $int_zoom < 29) {
+  if (((is_numeric($zoom) && $int_zoom > 0 && $int_zoom < 29)) || ( $zoom == "autozoom")){
     $this->zoom = $zoom;
   } else {
     $this->zoom = "4";

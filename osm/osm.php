@@ -3,7 +3,7 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embeds maps in your blog and adds geo data to your posts.  Find samples and a forum on the <a href="https://wp-osm-plugin.hyumika.com">OSM plugin page</a>.
-Version: 6.1.2
+Version: 6.1.3
 Author: MiKa
 Author URI: http://www.hyumika.com
 Minimum WordPress Version Required: 3.0
@@ -27,7 +27,7 @@ Minimum WordPress Version Required: 3.0
 */
 load_plugin_textdomain('OSM', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
 
-define ("PLUGIN_VER", "V6.1.2");
+define ("PLUGIN_VER", "V6.1.3");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -106,24 +106,68 @@ include ('osm-config.php');
 
 define ("Osm_TraceLevel", DEBUG_ERROR);
 
-
+/*
 // If the function exists this file is called as upload_mimes.
 // We don't do anything then.
 if ( ! function_exists( 'osm_restrict_mime_types' ) ) {
-  add_filter( 'upload_mimes', 'osm_restrict_mime_types' );
-  /**
-  * Retrun allowed mime types
-  *
-  * @see function get_allowed_mime_types in wp-includes/functions.php
-  * @param array Array of mime types
-  * @return array Array of mime types keyed by the file extension regex corresponding to those types.
-  */
-  function osm_restrict_mime_types( $mime_types ) {
-    $mime_types['gpx'] = 'text/gpx';
-    $mime_types['kml'] = 'text/kml';
-    return $mime_types;
-  }
+    //
+    // Return allowed mime types
+    //
+    // @see function get_allowed_mime_types in wp-includes/functions.php
+    // @param array $mime_types Array of mime types
+    // @return array Array of mime types keyed by the file extension regex corresponding to those types.
+    //
+    function osm_restrict_mime_types( $mime_types ) {
+        // Logging der aktuellen MIME-Typen, die erlaubt sind
+        error_log('Called osm_restrict_mime_types filter.');
+        
+        // Füge gpx und kml zu den erlaubten MIME-Typen hinzu
+        $mime_types['gpx'] = 'application/gpx+xml';
+        $mime_types['kml'] = 'application/vnd.google-earth.kml+xml';
+
+        // Logge die Liste der erlaubten MIME-Typen nach dem Hinzufügen
+        error_log('Allowed MIME types after modification: ' . print_r($mime_types, true));
+
+        return $mime_types;
+    }
+
+    function allow_osm_upload( $data, $file, $filename, $mimes ) {
+        // Logging des Dateinamens und der empfangenen Mimetypen
+        error_log('Called allow_osm_upload for file: ' . $filename);
+        error_log('File MIME types received: ' . print_r($mimes, true));
+
+        // Hole die Dateiendung (unabhängig von Groß-/Kleinschreibung)
+        $ext = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
+
+        // Logge die erkannte Dateiendung
+        error_log('Detected file extension: ' . $ext);
+
+        // Prüfe auf kml oder gpx und setze den entsprechenden MIME-Typ
+        if ( $ext === 'kml' ) {
+            error_log('Processing KML file.');
+            $data['ext']  = 'kml';
+            $data['type'] = 'application/vnd.google-earth.kml+xml';
+            $data['proper_filename'] = $filename;
+        } elseif ( $ext === 'gpx' ) {
+            error_log('Processing GPX file.');
+            $data['ext']  = 'gpx';
+            $data['type'] = 'application/gpx+xml';
+            $data['proper_filename'] = $filename;
+        } else {
+            // Logge, wenn die Dateiendung nicht unterstützt wird
+            error_log('Unsupported file extension: ' . $ext);
+        }
+
+        // Logge die finalen Dateiinformationen, bevor sie zurückgegeben werden
+        error_log('File data to be returned: ' . print_r($data, true));
+        return $data;
+    }
+
+    // Filter einbinden, um zusätzliche MIME-Typen (gpx und kml) zu erlauben
+    add_filter( 'upload_mimes', 'osm_restrict_mime_types' );
+    add_filter( 'wp_check_filetype_and_ext', 'allow_osm_upload', 10, 4 );
 }
+*/
 
 function saveGeotagAndPic() {
     if ( isset( $_POST['lat'], $_POST['lon'], $_POST['icon'], $_POST['post_id'], $_POST['geotag_nonce'] ) ) {

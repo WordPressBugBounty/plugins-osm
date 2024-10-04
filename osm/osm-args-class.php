@@ -133,25 +133,23 @@ class cOsm_arguments
     }
   }
 
-  private function setControlArray($a_MapControl){
-    $mapControl_array = explode( ',',$a_MapControl);
-    foreach ($mapControl_array as $MapControl ){
-	  $MapControl = strtolower($MapControl);
-	  if ($MapControl == 'fullscreen'){
-          $this->cntrl_fullscreen = true;
-     }
-     else if($MapControl == 'mouseposition'){
-       $this->cntrl_mouseposition = true;
-     }
+private function setControlArray($a_MapControl){
+  $mapControl_array = explode( ',',$a_MapControl);
+  foreach ($mapControl_array as $MapControl ){
+    $MapControl = strtolower($MapControl);
+    if ($MapControl == 'fullscreen'){
+      $this->cntrl_fullscreen = true;
+    }
+    else if($MapControl == 'mouseposition'){
+      $this->cntrl_mouseposition = true;
+    }
     else if($MapControl == 'scaleline'){
       $this->cntrl_scaleline = true;
-     }
-     else if($MapControl == 'overview'){
+    }
+    else if($MapControl == 'overview'){
       $this->cntrl_overview = true;
-     }    
-     
-     
-}
+    }    
+  }
   return $this->mapControl_array;
 }
 
@@ -229,7 +227,20 @@ private function setMapAPIkey($a_map_api_key){
 }
 
 private function setMapZoom($a_map_zoom){
-  $this->zoom = $a_map_zoom;
+
+  $zoom = sanitize_text_field($a_map_zoom);
+  $semicolon_position = strpos($zoom, ';');
+  if ($semicolon_position !== false) {
+    $zoom = substr($zoom, 0, $semicolon_position);
+  } 
+  $int_zoom = (int) $zoom;
+  if (is_numeric($zoom) && $int_zoom > 0 && $int_zoom < 29) {
+    $this->zoom = $zoom;
+  } else {
+    $this->zoom = "4";
+    Osm::traceText(DEBUG_ERROR, "zoom out of range!");
+    Osm::traceText(DEBUG_ERROR, $a_map_zoom);
+  }
 }
 
 public function setMap_event($a_map_event){

@@ -123,6 +123,12 @@
     // CVE-2024-3604
     $tagged_type = sanitize_text_field($tagged_type);
     $tagged_filter = sanitize_text_field($tagged_filter);
+    
+    $bckgrndimg = sanitize_text_field($bckgrndimg);
+    $semicolon_position = strpos($bckgrndimg, ';');
+    if ($semicolon_position !== false) {
+      $bckgrndimg = substr($bckgrndimg, 0, $semicolon_position);
+    } 
 
     if ($debug_trc == "true"){
       echo "WP version: ".get_bloginfo(version)."<br>";
@@ -235,7 +241,7 @@ else{
 
 
 
-                       if(($file_select_box != 'no') && ($file_title != 'no')){
+                       if(($file_select_box != 'no') && ($file_title != 'no') && ($file_list != "NoFile") && (!empty($file_list))){
                          $showSelectbox = true;
 	               }
 
@@ -353,7 +359,7 @@ else{
 			}
 
 
-			if ($file_list != "NoFile"){
+			if (($file_list != "NoFile") && (!empty($file_list))){
 			  $FileListArray   = explode( ',', $file_list );
 				/** FileColorListArray is set on line 181 */
 
@@ -388,8 +394,9 @@ else{
 					$output .= Osm_OLJS3::addVectorLayer($MapName, $FileListArray[$x], $Color, $FileType, $x, $gpx_marker_name, $showMarkerName, $FileTitle, $file_param);
 				  }
 				  else {
-				         /* translators: %s: filename */ 
-					 Osm::traceText(DEBUG_ERROR, (sprintf(__('%s hast got wrong file extension (gpx, kml)!'), $FileName)));
+                                    /* translators: %s: filename */ 
+                                    Osm::traceText(DEBUG_ERROR, (sprintf(__('file_list = %s!'), $file_list)));
+                                    Osm::traceText(DEBUG_ERROR, (sprintf(__('%s has got wrong file extension (gpx, kml)!'), $FileName)));	 
 				  }
 				}
 				//$output .= 'osm_addPopupClickhandler('. $MapName .',  "'. $MapName .'"); ';

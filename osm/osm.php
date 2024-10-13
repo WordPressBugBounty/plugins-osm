@@ -3,7 +3,7 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embeds maps in your blog and adds geo data to your posts.  Find samples and a forum on the <a href="https://wp-osm-plugin.hyumika.com">OSM plugin page</a>.
-Version: 6.1.4
+Version: 6.1.5
 Author: MiKa
 Author URI: http://www.hyumika.com
 Minimum WordPress Version Required: 3.0
@@ -27,7 +27,7 @@ Minimum WordPress Version Required: 3.0
 */
 load_plugin_textdomain('OSM', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
 
-define ("PLUGIN_VER", "V6.1.4");
+define ("PLUGIN_VER", "V6.1.5");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -106,7 +106,7 @@ include ('osm-config.php');
 
 define ("Osm_TraceLevel", DEBUG_ERROR);
 
-/*
+
 // If the function exists this file is called as upload_mimes.
 // We don't do anything then.
 if ( ! function_exists( 'osm_restrict_mime_types' ) ) {
@@ -167,7 +167,6 @@ if ( ! function_exists( 'osm_restrict_mime_types' ) ) {
     add_filter( 'upload_mimes', 'osm_restrict_mime_types' );
     add_filter( 'wp_check_filetype_and_ext', 'allow_osm_upload', 10, 4 );
 }
-*/
 
 function saveGeotagAndPic() {
     if ( isset( $_POST['lat'], $_POST['lon'], $_POST['icon'], $_POST['post_id'], $_POST['geotag_nonce'] ) ) {

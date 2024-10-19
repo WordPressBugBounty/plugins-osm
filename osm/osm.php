@@ -3,7 +3,7 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embeds maps in your blog and adds geo data to your posts.  Find samples and a forum on the <a href="https://wp-osm-plugin.hyumika.com">OSM plugin page</a>.
-Version: 6.1.5
+Version: 6.1.6
 Author: MiKa
 Author URI: http://www.hyumika.com
 Minimum WordPress Version Required: 3.0
@@ -27,7 +27,7 @@ Minimum WordPress Version Required: 3.0
 */
 load_plugin_textdomain('OSM', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
 
-define ("PLUGIN_VER", "V6.1.5");
+define ("PLUGIN_VER", "V6.1.6");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -119,37 +119,37 @@ if ( ! function_exists( 'osm_restrict_mime_types' ) ) {
     //
     function osm_restrict_mime_types( $mime_types ) {
         // Logging der aktuellen MIME-Typen, die erlaubt sind
-        error_log('Called osm_restrict_mime_types filter.');
+        // error_log('Called osm_restrict_mime_types filter.');
         
         // Füge gpx und kml zu den erlaubten MIME-Typen hinzu
         $mime_types['gpx'] = 'application/gpx+xml';
         $mime_types['kml'] = 'application/vnd.google-earth.kml+xml';
 
         // Logge die Liste der erlaubten MIME-Typen nach dem Hinzufügen
-        error_log('Allowed MIME types after modification: ' . print_r($mime_types, true));
+        // error_log('Allowed MIME types after modification: ' . print_r($mime_types, true));
 
         return $mime_types;
     }
 
     function allow_osm_upload( $data, $file, $filename, $mimes ) {
         // Logging des Dateinamens und der empfangenen Mimetypen
-        error_log('Called allow_osm_upload for file: ' . $filename);
-        error_log('File MIME types received: ' . print_r($mimes, true));
+        // error_log('Called allow_osm_upload for file: ' . $filename);
+        // error_log('File MIME types received: ' . print_r($mimes, true));
 
         // Hole die Dateiendung (unabhängig von Groß-/Kleinschreibung)
         $ext = strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
 
         // Logge die erkannte Dateiendung
-        error_log('Detected file extension: ' . $ext);
+        // error_log('Detected file extension: ' . $ext);
 
         // Prüfe auf kml oder gpx und setze den entsprechenden MIME-Typ
         if ( $ext === 'kml' ) {
-            error_log('Processing KML file.');
+            // error_log('Processing KML file.');
             $data['ext']  = 'kml';
             $data['type'] = 'application/vnd.google-earth.kml+xml';
             $data['proper_filename'] = $filename;
         } elseif ( $ext === 'gpx' ) {
-            error_log('Processing GPX file.');
+            // error_log('Processing GPX file.');
             $data['ext']  = 'gpx';
             $data['type'] = 'application/gpx+xml';
             $data['proper_filename'] = $filename;
@@ -159,7 +159,7 @@ if ( ! function_exists( 'osm_restrict_mime_types' ) ) {
         }
 
         // Logge die finalen Dateiinformationen, bevor sie zurückgegeben werden
-        error_log('File data to be returned: ' . print_r($data, true));
+        // error_log('File data to be returned: ' . print_r($data, true));
         return $data;
     }
 

@@ -3,7 +3,7 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embeds maps in your blog and adds geo data to your posts.  Find samples and a forum on the <a href="https://wp-osm-plugin.hyumika.com">OSM plugin page</a>.
-Version: 6.1.14
+Version: 6.1.15
 Author: MiKa
 Author URI: http://www.hyumika.com
 Minimum WordPress Version Required: 3.0
@@ -26,7 +26,7 @@ Minimum WordPress Version Required: 3.0
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define ("PLUGIN_VER", "V6.1.14");
+define ("PLUGIN_VER", "V6.1.15");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -168,45 +168,60 @@ if ( ! function_exists( 'osm_restrict_mime_types' ) ) {
 }
 
 function saveGeotagAndPic() {
-    if ( isset( $_POST['lat'], $_POST['lon'], $_POST['icon'], $_POST['post_id'], $_POST['geotag_nonce'] ) ) {
 
-        $post_id = absint( wp_unslash( $_POST['post_id'] ) );
-
-        // SECURITY-FIX: Berechtigungsprüfung
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
-            echo "Error: Unauthorized access.";
-            wp_die();
-        }
-
-        $latlon  = sanitize_text_field( wp_unslash( $_POST['lat'] ) ) . ',' . sanitize_text_field( wp_unslash( $_POST['lon'] ) );
-        $icon    = sanitize_text_field( wp_unslash( $_POST['icon'] ) );
-        $nonce   = sanitize_text_field( wp_unslash( $_POST['geotag_nonce'] ) );
-
-        if ( ! wp_verify_nonce( $nonce, 'osm_geotag_nonce' ) ) {
-            echo "Error: Bad ajax request";
-        } else {
-            echo "<br>";
-            _e( 'Location (geotag) saved successfully, you can use it at [Map & Locations]!', 'OSM' );
-            echo "<br><b>";
-            _e( 'TIPP: ', 'OSM' );
-            echo "</b>";
-            _e( 'There is an OSM widget that shows a map with your location automatically on your post/page!', 'OSM' );
-
-            // Custom Field update
-            $CustomField = get_option( 'osm_custom_field', 'OSM_geo_data' );
-            delete_post_meta( $post_id, $CustomField );
-            delete_post_meta( $post_id, 'OSM_geo_icon' );
-            add_post_meta( $post_id, $CustomField, $latlon, true );
-
-            if ( $icon !== '' ) {
-                add_post_meta( $post_id, 'OSM_geo_icon', $icon, true );
-            }
-        }
-    } else {
-        // Fehler, wenn die erwarteten POST-Variablen fehlen
-        echo "Error: Required data is missing.";
+    if (
+        ! isset(
+            $_POST['lat'],
+            $_POST['lon'],
+            $_POST['icon'],
+            $_POST['post_id'],
+            $_POST['geotag_nonce']
+        )
+    ) {
+        wp_send_json_error( 'Required data is missing.' );
     }
-    wp_die();
+
+    if ( ! wp_verify_nonce( $_POST['geotag_nonce'], 'osm_geotag_nonce' ) ) {
+        wp_send_json_error( 'Invalid nonce.' );
+    }
+
+    $post_id = absint( $_POST['post_id'] );
+    if ( ! $post_id || ! get_post( $post_id ) ) {
+        wp_send_json_error( 'Invalid post ID.' );
+    }
+
+    if ( ! current_user_can( 'edit_post', $post_id ) ) {
+        wp_send_json_error( 'Insufficient permissions.' );
+    }
+
+    $lat = filter_var( $_POST['lat'], FILTER_VALIDATE_FLOAT );
+    $lon = filter_var( $_POST['lon'], FILTER_VALIDATE_FLOAT );
+
+    if ( $lat === false || $lon === false ) {
+        wp_send_json_error( 'Invalid coordinates.' );
+    }
+
+    $latlon = $lat . ',' . $lon;
+
+    $icon = sanitize_text_field( wp_unslash( $_POST['icon'] ) );
+
+    if ( $icon !== '' ) {
+        if ( ! preg_match( '/^[A-Za-z0-9_]+\.png$/', $icon ) ) {
+            wp_send_json_error( 'Invalid icon format.' );
+        }
+    }
+
+    $custom_field = get_option( 'osm_custom_field', 'OSM_geo_data' );
+
+    delete_post_meta( $post_id, $custom_field );
+    delete_post_meta( $post_id, 'OSM_geo_icon' );
+
+    add_post_meta( $post_id, $custom_field, $latlon, true );
+
+    if ( $icon !== '' ) {
+        add_post_meta( $post_id, 'OSM_geo_icon', $icon, true );
+    }
+    wp_send_json_success( esc_html__('Location (geotag) saved successfully. You can use it at [Map & Locations].', 'OSM'));
 }
 
 
@@ -220,67 +235,81 @@ function osm_add_action_links ( $actions ) {
 
 
 function savePostMarker() {
-    if ( isset( $_POST['MarkerId'], $_POST['MarkerLat'], $_POST['MarkerLon'], $_POST['MarkerIcon'], $_POST['MarkerName'], $_POST['post_id'], $_POST['marker_nonce'], $_POST['MarkerText'] ) ) {
 
-        // post_id korrekt behandeln
-        $post_id = absint( wp_unslash( $_POST['post_id'] ) );
-
-        // SECURITY-FIX: Berechtigungsprüfung
-        if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
-            echo "Error: Unauthorized access.";
-            wp_die();
-        }
-
-        // restliche Felder wie gehabt
-        $MarkerId     = absint( wp_unslash( $_POST['MarkerId'] ) );
-        $MarkerLatLon = sanitize_text_field( wp_unslash( $_POST['MarkerLat'] ) ) . ',' .
-                        sanitize_text_field( wp_unslash( $_POST['MarkerLon'] ) );
-        $MarkerIcon   = sanitize_file_name( wp_unslash( $_POST['MarkerIcon'] ) );
-        $MarkerName   = sanitize_text_field( wp_unslash( $_POST['MarkerName'] ) );
-        $nonce        = sanitize_text_field( wp_unslash( $_POST['marker_nonce'] ) );
-
-        $allowed_html = array(
-            'a'  => array( 'href' => array() ),
-            'br' => array(),
-            'b'  => array(),
-            'i'  => array(),
-        );
-
-        $MarkerText = wp_kses( wp_unslash( $_POST['MarkerText'] ), $allowed_html );
-
-        // Nonce-Prüfung
-        if ( ! wp_verify_nonce( $nonce, 'osm_marker_nonce' ) ) {
-            echo "Error: Bad ajax request";
-        } else {
-            // Marker-Metadaten schreiben
-            delete_post_meta( $post_id, 'OSM_Marker_0' . $MarkerId . '_Name' );
-            delete_post_meta( $post_id, 'OSM_Marker_0' . $MarkerId . '_LatLon' );
-            delete_post_meta( $post_id, 'OSM_Marker_0' . $MarkerId . '_Icon' );
-            delete_post_meta( $post_id, 'OSM_Marker_0' . $MarkerId . '_Text' );
-
-            add_post_meta( $post_id, 'OSM_Marker_0' . $MarkerId . '_Name', $MarkerName, true );
-            add_post_meta( $post_id, 'OSM_Marker_0' . $MarkerId . '_LatLon', $MarkerLatLon, true );
-            add_post_meta( $post_id, 'OSM_Marker_0' . $MarkerId . '_Icon', $MarkerIcon, true );
-            add_post_meta( $post_id, 'OSM_Marker_0' . $MarkerId . '_Text', $MarkerText, true );
-        }
-    } else {
-        // Fehlende Felder debuggen
-        $missing_fields = array();
-        if ( ! isset( $_POST['MarkerId'] ) ) $missing_fields[] = 'MarkerId';
-        if ( ! isset( $_POST['MarkerLat'] ) ) $missing_fields[] = 'MarkerLat';
-        if ( ! isset( $_POST['MarkerLon'] ) ) $missing_fields[] = 'MarkerLon';
-        if ( ! isset( $_POST['MarkerIcon'] ) ) $missing_fields[] = 'MarkerIcon';
-        if ( ! isset( $_POST['MarkerName'] ) ) $missing_fields[] = 'MarkerName';
-        if ( ! isset( $_POST['post_id'] ) ) $missing_fields[] = 'post_id';
-        if ( ! isset( $_POST['marker_nonce'] ) ) $missing_fields[] = 'marker_nonce';
-        if ( ! isset( $_POST['MarkerText'] ) ) $missing_fields[] = 'MarkerText';
-
-        echo "Error: Required data is missing: " . implode( ', ', $missing_fields );
-        echo "Error: Required data is missing.";
+    if (
+        ! isset(
+            $_POST['MarkerId'],
+            $_POST['MarkerLat'],
+            $_POST['MarkerLon'],
+            $_POST['MarkerIcon'],
+            $_POST['MarkerName'],
+            $_POST['post_id'],
+            $_POST['marker_nonce'],
+            $_POST['MarkerText']
+        )
+    ) {
+        wp_send_json_error( 'Required data is missing.' );
     }
 
-    wp_die();
+    $post_id = absint( wp_unslash( $_POST['post_id'] ) );
+    $nonce   = sanitize_text_field( wp_unslash( $_POST['marker_nonce'] ) );
+
+    if ( ! wp_verify_nonce( $nonce, 'osm_marker_nonce' ) ) {
+        wp_send_json_error( 'Invalid nonce.' );
+    }
+
+    if ( ! $post_id || ! get_post( $post_id ) ) {
+        wp_send_json_error( 'Invalid post ID.' );
+    }
+
+    if ( ! current_user_can( 'edit_post', $post_id ) ) {
+        wp_send_json_error( 'Insufficient permissions.' );
+    }
+
+    // Validierung der Koordinaten
+    $lat = filter_var( wp_unslash( $_POST['MarkerLat'] ), FILTER_VALIDATE_FLOAT );
+    $lon = filter_var( wp_unslash( $_POST['MarkerLon'] ), FILTER_VALIDATE_FLOAT );
+
+    if ( $lat === false || $lon === false ) {
+        wp_send_json_error( 'Invalid coordinates.' );
+    }
+
+    $MarkerLatLon = $lat . ',' . $lon;
+
+    // Textfelder absichern
+    $MarkerId   = sanitize_key( wp_unslash( $_POST['MarkerId'] ) );
+    $MarkerName = sanitize_text_field( wp_unslash( $_POST['MarkerName'] ) );
+
+    $MarkerIcon = sanitize_text_field( wp_unslash( $_POST['MarkerIcon'] ) );
+    if ( $MarkerIcon !== '' && ! preg_match( '/^[A-Za-z0-9_]+\.png$/', $MarkerIcon ) ) {
+        wp_send_json_error( 'Invalid icon format.' );
+    }
+
+    // Nur bestimmte HTML-Tags zulassen
+    $allowed_html = array(
+        'a'  => array( 'href' => array(), 'target' => array() ),
+        'br' => array(),
+        'b'  => array(),
+        'i'  => array(),
+    );
+    $MarkerText = wp_kses( wp_unslash( $_POST['MarkerText'] ), $allowed_html );
+
+    // Metadaten setzen
+    $prefix = 'OSM_Marker_0' . $MarkerId . '_';
+
+    delete_post_meta( $post_id, $prefix . 'Name' );
+    delete_post_meta( $post_id, $prefix . 'LatLon' );
+    delete_post_meta( $post_id, $prefix . 'Icon' );
+    delete_post_meta( $post_id, $prefix . 'Text' );
+
+    add_post_meta( $post_id, $prefix . 'Name', $MarkerName, true );
+    add_post_meta( $post_id, $prefix . 'LatLon', $MarkerLatLon, true );
+    add_post_meta( $post_id, $prefix . 'Icon', $MarkerIcon, true );
+    add_post_meta( $post_id, $prefix . 'Text', $MarkerText, true );
+
+    wp_send_json_success( esc_html__( 'Marker saved successfully.', 'OSM' ) );
 }
+
 
 
 

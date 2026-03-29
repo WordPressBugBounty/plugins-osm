@@ -258,7 +258,19 @@ if ($bckgrndimg !== 'no') {
 			$NumOfGpxKmlFiles = 0;
 			
 			if ($file_color_list != 'NoColor') {
-				$FileColorListArray = explode(',', $file_color_list);
+				$colors = explode(',', (string) wp_unslash($file_color_list));
+                                foreach ($colors as $color) {
+                                  $color = sanitize_text_field($color);
+                                  $color = trim(strtolower($color));
+
+                                  if (preg_match('/^#([a-f0-9]{3}|[a-f0-9]{6})$/', $color) ||  preg_match('/^[a-z]+$/', $color) ) {
+                                        $FileColorListArray[] = $color;
+                                      } else {
+                                         Osm::traceText(DEBUG_ERROR, "file_color_list invalid: " . $color);
+                                         $FileColorListArray[0] = 'NoColor'; 
+                                      }
+                                 }
+
 			} else {
 				$FileColorListArray[0] = 'NoColor';
 			}
@@ -291,7 +303,7 @@ if ($bckgrndimg !== 'no') {
 
 
 					if (!empty($FileColorListArray[$key])) {
-						$output .= '<span class="layerColor layerColorHidden" style="background-color:'  . $FileColorListArray[$key] . '"></span>';
+						$output .= '<span class="layerColor layerColorHidden" style="background-color:'  . esc_attr($FileColorListArray[$key]) . '"></span>';
 					}
 
 					$output .= '<span class="padding1em">' . trim($val) . '</span></span>';

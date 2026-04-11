@@ -196,7 +196,7 @@
 if ($bckgrndimg !== 'no') {
     $output = '
         <div id="' . esc_attr($MapName) . '"
-             class="map ' . esc_attr($setup_map_name) . '"
+       class="osm-map-container ' . esc_attr($setup_map_name) . '"
              data-map_name="' . esc_attr($setup_map_name) . '"
              data-map="' . esc_attr($MapName) . '"
              style="width:' . esc_attr($sc_args->getMapWidth_str()) . ';
@@ -218,7 +218,7 @@ if ($bckgrndimg !== 'no') {
 } else {
     $output = '
         <div id="' . esc_attr($MapName) . '"
-             class="map ' . esc_attr($setup_map_name) . '"
+       class="osm-map-container ' . esc_attr($setup_map_name) . '"
              data-map_name="' . esc_attr($setup_map_name) . '"
              data-map="' . esc_attr($MapName) . '"
              style="width:' . esc_attr($sc_args->getMapWidth_str()) . ';

@@ -3,7 +3,7 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embeds maps in your blog and adds geo data to your posts.  Find samples and a forum on the <a href="https://wp-osm-plugin.hyumika.com">OSM plugin page</a>.
-Version: 6.1.16
+Version: 6.1.17
 Author: MiKa
 Author URI: http://www.hyumika.com
 Minimum WordPress Version Required: 3.0
@@ -26,7 +26,7 @@ Minimum WordPress Version Required: 3.0
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define ("PLUGIN_VER", "V6.1.16");
+define ("PLUGIN_VER", "V6.1.17");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -167,6 +167,12 @@ if ( ! function_exists( 'osm_restrict_mime_types' ) ) {
     add_filter( 'wp_check_filetype_and_ext', 'allow_osm_upload', 10, 4 );
 }
 
+/**
+ * AJAX handler to save a post geotag (lat/lon) and optional marker icon.
+ *
+ * Validates required request fields, checks nonce and permissions, sanitizes
+ * input, updates post meta, and returns a JSON success/error response.
+ */
 function saveGeotagAndPic() {
 
     if (
@@ -586,14 +592,21 @@ var HTTP_GET_VARS = [];
   }
 
   function gps2Num($coordPart) {
-    $parts = explode('/', $coordPart);
-    if (count($parts) <= 0){
+    if ($coordPart === null || $coordPart === '') {
         return 0;
     }
-    if (count($parts) == 1){
-        return $parts[0];
+
+    $parts = explode('/', (string) $coordPart, 2);
+    if (!isset($parts[1]) || $parts[1] === '') {
+      return floatval($parts[0]);
     }
-    return floatval($parts[0]) / floatval($parts[1]);
+
+    $denominator = floatval($parts[1]);
+    if ($denominator == 0.0) {
+      return floatval($parts[0]);
+    }
+
+    return floatval($parts[0]) / $denominator;
   }
 
   function getGps($exifCoord, $hemi) {

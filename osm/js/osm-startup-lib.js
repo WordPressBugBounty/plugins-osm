@@ -1,4 +1,4 @@
-/*  Copyright (C) 2020  Matthias Greiling (https://westrad.de)
+/*  Copyright (C) 2026  Matthias Greiling (https://westrad.de)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -320,7 +320,7 @@ jQuery(document).ready(function() {
 	}  else {
 		
 		/** no map control is given via GET - make first layer visible - if there is any to choose from */
-		jQuery('.map').each(function() {
+		jQuery('.osm-map-container').each(function() {
 			if (jQuery('.layerOf' + jQuery(this).data('map')).length > 0) {
 			        mapStr = jQuery(this).data('map');
 				activateLayers(mapStr, '0', 1);

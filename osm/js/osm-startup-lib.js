@@ -239,6 +239,41 @@ jQuery(document).ready(function() {
 		}	
 	});
 
+	/**
+	 * event handler for 'show all' button
+	 */
+	jQuery(document).on('click', '.layerBoxesAll', function() {
+		var _map = jQuery(this).attr('data-map');
+		var layerIndices = jQuery(this).attr('data-layer-indices').toString().split(',');
+		// check if all layers are currently active
+		var allActive = true;
+		jQuery.each(layerIndices, function(i, idx) {
+			var e = parseInt(idx, 10);
+			if (jQuery('#layerBox' + e + _map).data('active') !== true) {
+				allActive = false;
+				return false; // break
+			}
+		});
+		// toggle: hide all if all active, show all otherwise
+		jQuery.each(layerIndices, function(i, idx) {
+			var e = parseInt(idx, 10);
+			var layerBox = jQuery('#layerBox' + e + _map);
+			if (layerBox.length > 0) {
+				if (allActive) {
+					switchLayerOff(layerBox);
+				} else if (layerBox.data('active') !== true) {
+					switchLayerOn(layerBox);
+				}
+			}
+		});
+		// update icon on the "Show all" button
+		if (allActive) {
+			jQuery(this).children('i').removeClass('fa-eye').addClass('fa-eye-slash');
+		} else {
+			jQuery(this).children('i').removeClass('fa-eye-slash').addClass('fa-eye');
+		}
+	});
+
 	/** 
 	 * event handler for text link to control map
 	 * decide which function to call by looking at active status of tag
@@ -323,8 +358,13 @@ jQuery(document).ready(function() {
 		jQuery('.osm-map-container').each(function() {
 			if (jQuery('.layerOf' + jQuery(this).data('map')).length > 0) {
 			        mapStr = jQuery(this).data('map');
-				activateLayers(mapStr, '0', 1);
-				
+			        if (jQuery(this).attr('data-autoshow') === 'all') {
+		        	jQuery('.layerOf' + mapStr).each(function() {
+		        		switchLayerOn(jQuery(this));
+		        	});
+			        } else {
+					activateLayers(mapStr, '0', 1);
+				}
 			}
 		});	
 	}	

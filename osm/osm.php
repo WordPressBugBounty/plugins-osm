@@ -2,11 +2,16 @@
 /*
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
-Description: Embeds maps in your blog and adds geo data to your posts.  Find samples and a forum on the <a href="https://wp-osm-plugin.hyumika.com">OSM plugin page</a>.
-Version: 6.1.17
+Description: Embed OpenStreetMap-based maps in posts, pages, and widgets, including marker, GPX, and KML support.
+Version: 6.2.0
 Author: MiKa
-Author URI: http://www.hyumika.com
-Minimum WordPress Version Required: 3.0
+Author URI: https://www.hyumika.com
+Requires at least: 6.0
+Requires PHP: 7.4
+License: GPL-2.0-or-later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: osm
+Domain Path: /languages
 */
 
 /*  (c) Copyright 2026  MiKa (www.hyumika.com)
@@ -26,7 +31,7 @@ Minimum WordPress Version Required: 3.0
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define ("PLUGIN_VER", "V6.1.17");
+define ("PLUGIN_VER", "V6.2.0");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -227,7 +232,7 @@ function saveGeotagAndPic() {
     if ( $icon !== '' ) {
         add_post_meta( $post_id, 'OSM_geo_icon', $icon, true );
     }
-    wp_send_json_success( esc_html__('Location (geotag) saved successfully. You can use it at [Map & Locations].', 'OSM'));
+    wp_send_json_success( esc_html__('Location (geotag) saved successfully. You can use it at [Map & Locations].', 'osm'));
 }
 
 
@@ -313,14 +318,14 @@ function savePostMarker() {
     add_post_meta( $post_id, $prefix . 'Icon', $MarkerIcon, true );
     add_post_meta( $post_id, $prefix . 'Text', $MarkerText, true );
 
-    wp_send_json_success( esc_html__( 'Marker saved successfully.', 'OSM' ) );
+    wp_send_json_success( esc_html__( 'Marker saved successfully.', 'osm' ) );
 }
 
 
 
 
 function osm_load_plugin_textdomain() {
-    load_plugin_textdomain('OSM', false, dirname(plugin_basename(__FILE__)) . '/languages/'  );
+    load_plugin_textdomain('osm', false, dirname(plugin_basename(__FILE__)) . '/languages/'  );
 }
 
 // If the function exists this file is called as post-upload-ui.
@@ -335,7 +340,7 @@ if ( ! function_exists( 'osm_restrict_mime_types_hint' ) ) {
 	 */
 	function osm_restrict_mime_types_hint() {
 	  echo '<br />';
-          _e('OSM plugin added: GPX / KML','OSM');
+          _e('OSM plugin added: GPX / KML','osm');
 	}
 }
 
@@ -363,7 +368,7 @@ function load_osm_map_v3_scripts($hook) {
     wp_enqueue_script('osm-ol3-library', Osm_OL_3_LibraryLocation);
     wp_enqueue_script('osm-ol3-ext-library', Osm_OL_3_Ext_LibraryLocation);
     wp_enqueue_script('osm-ol3-metabox-events', Osm_OL_3_MetaboxEvents_LibraryLocation);
-    wp_enqueue_script('osm-map-startup', Osm_map_startup_LibraryLocation);
+    wp_enqueue_script('osm-map-startup', Osm_map_startup_LibraryLocation, array(), PLUGIN_VER);
     
 }
 
@@ -694,7 +699,12 @@ static function OL3_createMarkerList($a_import, $a_import_osm_cat_incl_name, $a_
                 // Remove spaces before and after commas
                 $Data = preg_replace('/\s*,\s*/', ',', $Data);
                 $GeoData_Array = explode(' ', $Data);
-                list($temp_lat, $temp_lon) = explode(',', $GeoData_Array[0]);
+                $LatLon = explode(',', $GeoData_Array[0]);
+                if (count($LatLon) < 2) {
+                    Osm::traceText(DEBUG_ERROR, '[OL3_createMarkerList]: Invalid geo data for post ID ' . $post->ID . ' (value: "' . $GeoData_Array[0] . '"). Please either correct or delete the geotag in the custom field "' . $CustomFieldName . '" of this post.');
+                    continue;
+                }
+                list($temp_lat, $temp_lon) = $LatLon;
                 $PostMarker = get_post_meta($post->ID, 'OSM_geo_icon', true);
                 $PostMarker = Osm_icon::replaceOldIcon($PostMarker);
 
@@ -1129,7 +1139,7 @@ static function OL3_createMarkerList($a_import, $a_import_osm_cat_incl_name, $a_
  // add OSM-config page to Settings
   function admin_menu($not_used){
   // place the info in the plugin settings page
-    add_options_page(__('OpenStreetMap Manager', 'Osm'), __('OSM', 'Osm'), 'manage_options', basename(__FILE__), array('Osm', 'options_page_osm'));
+    add_options_page(__('OpenStreetMap Manager', 'osm'), __('OSM', 'osm'), 'manage_options', basename(__FILE__), array('Osm', 'options_page_osm'));
   }
 
 }	// End class Osm

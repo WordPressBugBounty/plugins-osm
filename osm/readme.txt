@@ -1,9 +1,9 @@
 ﻿=== OSM - OpenStreetMap ===
 Contributors: MiKa
 Tags: osm, OpenStreetMap, KML, GPX, OpenSeaMap
-Requires at least: 3.0
+Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 6.2.0
+Stable tag: 6.2.1
 License: GPLv2
 Requires PHP: 5.3
 
@@ -12,7 +12,10 @@ Customize maps in your posts, pages, and widgets. GPX, KML, and more.
 == Description ==
 Add a map with a marker in less than 100 seconds:
 
-Video tutorial: https://www.youtube.com/watch?v=GDoiXO1SfJ0
+== Description ==
+Add a map with marker in less than 100 sec:
+
+[youtube https://www.youtube.com/watch?v=GDoiXO1SfJ0]
 
 If you want detailed information about the OSM plugin, visit these pages:
 

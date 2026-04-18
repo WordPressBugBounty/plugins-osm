@@ -3,11 +3,11 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embed OpenStreetMap-based maps in posts, pages, and widgets, including marker, GPX, and KML support.
-Version: 6.2.0
+Version: 6.2.1
 Author: MiKa
 Author URI: https://www.hyumika.com
-Requires at least: 6.0
-Requires PHP: 7.4
+Requires at least: 5.0
+Requires PHP: 5.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: osm
@@ -31,7 +31,7 @@ Domain Path: /languages
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define ("PLUGIN_VER", "V6.2.0");
+define ("PLUGIN_VER", "V6.2.1");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -364,11 +364,11 @@ function load_osm_map_v3_scripts($hook) {
     wp_enqueue_style('osm-ol3-css', Osm_OL_3_CSS);
     wp_enqueue_style('osm-ol3-ext-css', Osm_OL_3_Ext_CSS);
     wp_enqueue_style('osm-map-css', Osm_map_CSS);
-    wp_enqueue_script('osm-polyfill', OSM_PLUGIN_URL . 'js/polyfill/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL');
-    wp_enqueue_script('osm-ol3-library', Osm_OL_3_LibraryLocation);
-    wp_enqueue_script('osm-ol3-ext-library', Osm_OL_3_Ext_LibraryLocation);
-    wp_enqueue_script('osm-ol3-metabox-events', Osm_OL_3_MetaboxEvents_LibraryLocation);
-    wp_enqueue_script('osm-map-startup', Osm_map_startup_LibraryLocation, array(), PLUGIN_VER);
+    wp_enqueue_script( 'wp-polyfill' ); // use WordPress built-in polyfill instead
+    wp_enqueue_script('osm-ol3-library', Osm_OL_3_LibraryLocation, array(), null, false);
+    wp_enqueue_script('osm-ol3-ext-library', Osm_OL_3_Ext_LibraryLocation, array('osm-ol3-library'), null, false);
+    wp_enqueue_script('osm-ol3-metabox-events', Osm_OL_3_MetaboxEvents_LibraryLocation, array('osm-ol3-library'), null, false);
+    wp_enqueue_script('osm-map-startup', Osm_map_startup_LibraryLocation, array('osm-ol3-library', 'osm-ol3-ext-library'), PLUGIN_VER, false);
     
 }
 

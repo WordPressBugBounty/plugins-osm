@@ -259,7 +259,7 @@ if ($bckgrndimg !== 'no') {
 			$showSelectbox = false;
 			$NumOfGpxKmlFiles = 0;
 			
-			if ($file_color_list != 'NoColor') {
+			if ($file_color_list != 'NoColor' && $file_color_list != '') {
 				$colors = explode(',', (string) wp_unslash($file_color_list));
                                 foreach ($colors as $color) {
                                   $color = sanitize_text_field($color);

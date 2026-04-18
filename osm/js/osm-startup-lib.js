@@ -80,8 +80,10 @@ function activateLayers(_map, _layers, _startUp) {
 		jQuery('#layerBox' + e + _map).css({'background-color':'rgb(250,255,255)' });
 		jQuery('#layerBox' + e + _map).data('active', true);
 		
-		/** real action */
-		window[_map].addLayer(window.vectorM[_map][e]);
+		/** real action - OL 10.x throws on duplicates, so guard first */
+		if (window[_map].getLayers().getArray().indexOf(window.vectorM[_map][e]) === -1) {
+			window[_map].addLayer(window.vectorM[_map][e]);
+		}
 
 		/** tracking stuff */
 		if (typeof _paq !== "undefined") {
@@ -150,8 +152,12 @@ function switchLayerOn(_e) {
 	_e.children('span.layerColor').removeClass('layerColorHidden'); 
 	
 	
-	/** window and vectorM are both global */
-	window[_e.data('map')].addLayer(window.vectorM[_e.data('map')][_e.data('layer')]);
+	/** window and vectorM are both global - OL 10.x throws on duplicates, so guard first */
+	var _mapName = _e.data('map');
+	var _layer = window.vectorM[_mapName][_e.data('layer')];
+	if (window[_mapName].getLayers().getArray().indexOf(_layer) === -1) {
+		window[_mapName].addLayer(_layer);
+	}
 	
 	/** tracking stuff */
 	if (typeof _paq !== "undefined") {

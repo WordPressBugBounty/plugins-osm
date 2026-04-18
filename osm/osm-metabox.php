@@ -22,10 +22,10 @@ function osm_enqueue_scripts_styles() {
   wp_enqueue_style( 'Osm_OL_3_Ext_style', Osm_OL_3_Ext_CSS);
   wp_enqueue_style( 'osm_map_style', Osm_map_CSS);
   
-   wp_enqueue_script('Osm_OL_3',Osm_OL_3_LibraryLocation); 
-  wp_enqueue_script('Osm_OL_3ext',Osm_OL_3_Ext_LibraryLocation);  
-  wp_enqueue_script('OSM_metabox_event_Script',Osm_OL_3_MetaboxEvents_LibraryLocation); 
-  wp_enqueue_script('Osm_map_startup_3',Osm_map_startup_LibraryLocation);
+   wp_enqueue_script('Osm_OL_3', Osm_OL_3_LibraryLocation, array(), null, false); 
+  wp_enqueue_script('Osm_OL_3ext', Osm_OL_3_Ext_LibraryLocation, array('Osm_OL_3'), null, false);  
+  wp_enqueue_script('OSM_metabox_event_Script', Osm_OL_3_MetaboxEvents_LibraryLocation, array('Osm_OL_3'), null, false); 
+  wp_enqueue_script('Osm_map_startup_3', Osm_map_startup_LibraryLocation, array('Osm_OL_3', 'Osm_OL_3ext'), null, false);
   wp_enqueue_script('OSM_metabox-script',Osm_OL_3_Metabox_LibraryLocation, array('jquery') );
     
   wp_enqueue_script('ajax-script', plugins_url( '/js/osm-plugin-lib.js', __FILE__ ), array('jquery'), null, true );
@@ -152,7 +152,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
     <?php
     $latlon = OSM_default_lat . ',' . OSM_default_lon;
     $zoom = OSM_default_zoom;
-    echo Osm::sc_OL3JS([
+    echo Osm::sc_OL3JS([ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         'map_center' => $latlon,
         'zoom' => $zoom,
         'width' => '75%',
@@ -164,7 +164,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
     <div id="Marker_Div"><br/>
     <!-- marker info is printed here when clicking in the map -->
     </div><br/>
-        <a id="osm-save-marker-btn" class="button"> <?php _e('Save marker and generate shortcode','osm') ?></a>
+        <a id="osm-save-marker-btn" class="button"> <?php esc_html_e('Save marker and generate shortcode','osm') ?></a>
     <br/><br/>      
 
  </div> <!-- id="tab_add_marker" -->
@@ -213,7 +213,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
     <?php
     $latlon = OSM_default_lat . ',' . OSM_default_lon;
     $zoom = OSM_default_zoom;
-    echo Osm::sc_OL3JS([
+    echo Osm::sc_OL3JS([ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         'map_center' => $latlon,
         'zoom' => $zoom,
         'width' => '100%',
@@ -292,7 +292,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
         <?php
         $latlon = OSM_default_lat . ',' . OSM_default_lon;
         $zoom = OSM_default_zoom;
-        echo Osm::sc_OL3JS([
+        echo Osm::sc_OL3JS([ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             'map_center' => $latlon,
             'zoom' => $zoom,
             'width' => '100%',
@@ -320,7 +320,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
     <?php
     $latlon = OSM_default_lat . ',' . OSM_default_lon;
     $zoom = OSM_default_zoom;
-    echo Osm::sc_OL3JS([
+    echo Osm::sc_OL3JS([ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         'map_center' => $latlon,
         'zoom' => $zoom,
         'width' => '100%',
@@ -331,7 +331,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
     ?>
 
     <div id="Geotag_Div"><br/></div><br/>
-    <a id="osm-save-geotag-btn" class="button"><?php _e('Save','osm') ?>
+    <a id="osm-save-geotag-btn" class="button"><?php esc_html_e('Save','osm') ?>
 </a>
     
     <br/><br/>
@@ -374,7 +374,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
                 $wp_url = "https://wordpress.org/support/view/plugin-reviews/osm";
                 // Translators: %s is the URL to the WordPress plugin review page.
                 $rate_txt = sprintf(esc_html__('If you like the OSM plugin rate it on WP %s', 'osm'), '<a href="' . esc_url($wp_url) . '">' . esc_html__('here', 'osm') . '</a>');
-                echo $rate_txt;
+                echo wp_kses_post( $rate_txt );
                 ?><br/>
                 <?php esc_html_e('Thanks!', 'osm'); ?>
             </td>
@@ -391,7 +391,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
 </div> <!-- id="tab_about" -->
 
 </div>  <!-- class="tabs" -->
-<h3><span style="color:green"><?php _e('Copy the generated shortcode/customfield/argument: ','osm') ?></span></h3>
-<div id="ShortCode_Div"><?php _e('If you click into the map this text is replaced','osm') ?> </div> <br/>
+<h3><span style="color:green"><?php esc_html_e('Copy the generated shortcode/customfield/argument: ','osm') ?></span></h3>
+<div id="ShortCode_Div"><?php esc_html_e('If you click into the map this text is replaced','osm') ?> </div> <br/>
 <?php
 }

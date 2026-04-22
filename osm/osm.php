@@ -3,7 +3,7 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embed OpenStreetMap-based maps in posts, pages, and widgets, including marker, GPX, and KML support.
-Version: 6.2.4
+Version: 6.2.5
 Author: MiKa
 Author URI: https://www.hyumika.com
 Requires at least: 5.0
@@ -31,7 +31,7 @@ Domain Path: /languages
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define ("PLUGIN_VER", "V6.2.4");
+define ("PLUGIN_VER", "V6.2.5");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -358,30 +358,58 @@ include('osm_map/osm-icon.php');
 include('osm-icon-class.php');
 
 
+function osm_enqueue_map_v3_assets() {
+  $asset_handles = array(
+    'styles'  => array('osm-ol3-css', 'osm-ol3-ext-css', 'osm-map-css'),
+    'scripts' => array('wp-polyfill', 'osm-ol3-library', 'osm-ol3-ext-library', 'osm-ol3-metabox-events', 'jquery', 'osm-map-startup'),
+  );
+
+  wp_enqueue_style('osm-ol3-css', Osm_OL_3_CSS);
+  wp_enqueue_style('osm-ol3-ext-css', Osm_OL_3_Ext_CSS);
+  wp_enqueue_style('osm-map-css', Osm_map_CSS);
+  wp_enqueue_script('wp-polyfill'); // use WordPress built-in polyfill instead
+  wp_enqueue_script('osm-ol3-library', Osm_OL_3_LibraryLocation, array(), null, false);
+  wp_enqueue_script('osm-ol3-ext-library', Osm_OL_3_Ext_LibraryLocation, array('osm-ol3-library'), null, false);
+  wp_enqueue_script('osm-ol3-metabox-events', Osm_OL_3_MetaboxEvents_LibraryLocation, array('osm-ol3-library'), null, false);
+  wp_enqueue_script('osm-map-startup', Osm_map_startup_LibraryLocation, array('jquery', 'osm-ol3-library', 'osm-ol3-ext-library'), PLUGIN_VER, false);
+  wp_localize_script('osm-map-startup', 'translations', array(
+    'openlayer'          => __('open layer', 'osm'),
+    'openlayerAtStartup' => __('open layer at startup', 'osm'),
+    'generateLink'       => __('link to this map with opened layers', 'osm'),
+    'shortDescription'   => __('short description', 'osm'),
+    'generatedShortCode' => __('to get a text control link paste this code in your wordpress editor', 'osm'),
+    'closeLayer'         => __('close layer', 'osm'),
+    'cantGenerateLink'   => __('put this string in the existing map short code to control this map', 'osm'),
+  ));
+
+  return $asset_handles;
+}
+
+
 
 function load_osm_map_v3_scripts($hook) {
-    global $post;
-    if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'osm_map_v3' ) ) {
+    global $post, $wp_query;
+
+    // Check all posts in the current query so that archive/multi-post pages
+    // also load the scripts when *any* displayed post contains the shortcode.
+    $needs_scripts = false;
+    if ( ! empty( $wp_query->posts ) ) {
+        foreach ( $wp_query->posts as $queried_post ) {
+            if ( is_a( $queried_post, 'WP_Post' ) && has_shortcode( $queried_post->post_content, 'osm_map_v3' ) ) {
+                $needs_scripts = true;
+                break;
+            }
+        }
+    } elseif ( is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'osm_map_v3' ) ) {
+        $needs_scripts = true;
+    }
+
+    if ( ! $needs_scripts ) {
         return;
     }
+
     //for osm_map_v3
-    wp_enqueue_style('osm-ol3-css', Osm_OL_3_CSS);
-    wp_enqueue_style('osm-ol3-ext-css', Osm_OL_3_Ext_CSS);
-    wp_enqueue_style('osm-map-css', Osm_map_CSS);
-    wp_enqueue_script( 'wp-polyfill' ); // use WordPress built-in polyfill instead
-    wp_enqueue_script('osm-ol3-library', Osm_OL_3_LibraryLocation, array(), null, false);
-    wp_enqueue_script('osm-ol3-ext-library', Osm_OL_3_Ext_LibraryLocation, array('osm-ol3-library'), null, false);
-    wp_enqueue_script('osm-ol3-metabox-events', Osm_OL_3_MetaboxEvents_LibraryLocation, array('osm-ol3-library'), null, false);
-    wp_enqueue_script('osm-map-startup', Osm_map_startup_LibraryLocation, array('jquery', 'osm-ol3-library', 'osm-ol3-ext-library'), PLUGIN_VER, false);
-    wp_localize_script('osm-map-startup', 'translations', array(
-        'openlayer'          => __('open layer', 'osm'),
-        'openlayerAtStartup' => __('open layer at startup', 'osm'),
-        'generateLink'       => __('link to this map with opened layers', 'osm'),
-        'shortDescription'   => __('short description', 'osm'),
-        'generatedShortCode' => __('to get a text control link paste this code in your wordpress editor', 'osm'),
-        'closeLayer'         => __('close layer', 'osm'),
-        'cantGenerateLink'   => __('put this string in the existing map short code to control this map', 'osm'),
-    ));
+    osm_enqueue_map_v3_assets();
 }
 
 function load_osm_map_scripts($hook) {
@@ -1127,7 +1155,24 @@ static function OL3_createMarkerList($a_import, $a_import_osm_cat_incl_name, $a_
   // shortcode for map with OpenLayers 3
   public static function sc_OL3JS($atts) {
     static  $MapCounter = 0;
+
+    // Fallback for maps rendered from secondary queries/theme sections.
+    // If normal enqueue detection missed this request, print required assets here.
+    // This keeps the map functional without forcing global script loading.
+    $assets_html = '';
+    if ( ! wp_script_is('osm-ol3-ext-library', 'done') ) {
+      $asset_handles = osm_enqueue_map_v3_assets();
+
+      ob_start();
+      wp_print_styles($asset_handles['styles']);
+      wp_print_scripts($asset_handles['scripts']);
+      $assets_html = ob_get_clean();
+    }
+
     include('osm_map_v3/osm-sc-osm_map_v3.php');
+    if ($assets_html !== '') {
+      $output = $assets_html . $output;
+    }
     return $output;
   }
   // shortcode for map with OpenLayers 2

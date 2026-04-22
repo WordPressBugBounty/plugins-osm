@@ -228,7 +228,8 @@ if ($bckgrndimg !== 'no') {
                     height:' . esc_attr($sc_args->getMapHeight_str()) . ';
                     display:' . esc_attr($vis_str) . ';
                     overflow:hidden;
-                    border:' . esc_attr($sc_args->getMapBorder()) . ';">
+                    border:' . esc_attr($sc_args->getMapBorder()) . ';
+                    position: relative;">
           <div id="' . esc_attr($MapName) . '_popup" class="ol-popup">
             <a href="#" id="' . esc_attr($MapName) . '_popup-closer" class="ol-popup-closer"></a>
             <div id="' . esc_attr($MapName) . '_popup-content"></div>

@@ -30,7 +30,7 @@
 <ol>
   <li><?php _e('for advanced samples visit the ','osm') ?><a target="_new" href="http://wp-osm-plugin.hyumika.com">osm-plugin page</a>.</li>
   <li><?php _e('for questions, bugs and other feedback visit the','osm') ?> <a target="_new" href="https://wp-osm-plugin.hyumika.com/forums/forum/WordPress-OpenStreetMap">forum</a></a></li>
-  <li><?php _e('Follow us on twitter: ','osm') ?><a target="_new" href="https://twitter.com/wp_osm_plugin">wp-osm-plugin</a>.</li>
+  <li><?php _e('Follow us on Bluesky: ','osm') ?><a target="_new" href="https://bsky.app/profile/mika-official.bsky.social">wp-osm-plugin</a>.</li>
   <li><?php _e('download the last version at WordPress.org ','osm') ?><a target="_new" href="http://wordpress.org/extend/plugins/osm/">osm-plugin download</a>.</li>
 </ol>
 <h3><?php _e('If you want to express thanks for this plugin ...','osm') ?></h3>

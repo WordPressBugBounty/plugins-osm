@@ -330,7 +330,7 @@ function getTileLayer(a_source, a_api_key) {
 
       var template = "{Layer}/{Style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png";
       var urls_basemap = [
-        "https://maps.wien.gv.at/basemap/" + template
+        "https://mapsneu.wien.gv.at/basemap/" + template
       ];
 
       // HiDPI support:

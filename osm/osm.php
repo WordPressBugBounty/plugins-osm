@@ -3,7 +3,7 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embed OpenStreetMap-based maps in posts, pages, and widgets, including marker, GPX, and KML support.
-Version: 6.2.1
+Version: 6.2.3
 Author: MiKa
 Author URI: https://www.hyumika.com
 Requires at least: 5.0
@@ -31,7 +31,7 @@ Domain Path: /languages
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define ("PLUGIN_VER", "V6.2.1");
+define ("PLUGIN_VER", "V6.2.3");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.
@@ -360,6 +360,10 @@ include('osm-icon-class.php');
 
 
 function load_osm_map_v3_scripts($hook) {
+    global $post;
+    if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'osm_map_v3' ) ) {
+        return;
+    }
     //for osm_map_v3
     wp_enqueue_style('osm-ol3-css', Osm_OL_3_CSS);
     wp_enqueue_style('osm-ol3-ext-css', Osm_OL_3_Ext_CSS);
@@ -368,11 +372,23 @@ function load_osm_map_v3_scripts($hook) {
     wp_enqueue_script('osm-ol3-library', Osm_OL_3_LibraryLocation, array(), null, false);
     wp_enqueue_script('osm-ol3-ext-library', Osm_OL_3_Ext_LibraryLocation, array('osm-ol3-library'), null, false);
     wp_enqueue_script('osm-ol3-metabox-events', Osm_OL_3_MetaboxEvents_LibraryLocation, array('osm-ol3-library'), null, false);
-    wp_enqueue_script('osm-map-startup', Osm_map_startup_LibraryLocation, array('osm-ol3-library', 'osm-ol3-ext-library'), PLUGIN_VER, false);
-    
+    wp_enqueue_script('osm-map-startup', Osm_map_startup_LibraryLocation, array('jquery', 'osm-ol3-library', 'osm-ol3-ext-library'), PLUGIN_VER, false);
+    wp_localize_script('osm-map-startup', 'translations', array(
+        'openlayer'          => __('open layer', 'osm'),
+        'openlayerAtStartup' => __('open layer at startup', 'osm'),
+        'generateLink'       => __('link to this map with opened layers', 'osm'),
+        'shortDescription'   => __('short description', 'osm'),
+        'generatedShortCode' => __('to get a text control link paste this code in your wordpress editor', 'osm'),
+        'closeLayer'         => __('close layer', 'osm'),
+        'cantGenerateLink'   => __('put this string in the existing map short code to control this map', 'osm'),
+    ));
 }
 
 function load_osm_map_scripts($hook) {
+    global $post;
+    if ( ! is_a( $post, 'WP_Post' ) || ! has_shortcode( $post->post_content, 'osm_map' ) ) {
+        return;
+    }
     wp_enqueue_script(array ('jquery'));
     
     //for osm_map
@@ -547,10 +563,6 @@ echo '<script type="text/javascript">
 /**  all layers have to be in this global array - in further process each map will have something like vectorM[map_ol3js_n][layer_n] */
 var vectorM = [[]];
 
-
-/** put translations from PHP/mo to JavaScript */
-var translations = [];
-
 /** global GET-Parameters */
 var HTTP_GET_VARS = [];
 
@@ -584,10 +596,6 @@ echo '<script type="text/javascript">
 
 /**  all layers have to be in this global array - in further process each map will have something like vectorM[map_ol3js_n][layer_n] */
 var vectorM = [[]];
-
-
-/** put translations from PHP/mo to JavaScript */
-var translations = [];
 
 /** global GET-Parameters */
 var HTTP_GET_VARS = [];

@@ -236,23 +236,7 @@ if ($bckgrndimg !== 'no') {
         </div>
     ';
 }
-			  
-			  $output .= '
-
-				<script type="text/javascript">
-          translations[\'openlayer\'] = "' . __('open layer', 'osm') . '";
-          translations[\'openlayerAtStartup\'] = "' . __('open layer at startup', 'osm') . '";
-          translations[\'generateLink\'] = "' . __('link to this map with opened layers', 'osm') . '";
-          translations[\'shortDescription\'] = "' . __('short description', 'osm') . '";
-          translations[\'generatedShortCode\'] = "' . __('to get a text control link paste this code in your wordpress editor', 'osm') . '";
-          translations[\'closeLayer\'] = "' . __('close layer', 'osm') . '";
-          translations[\'cantGenerateLink\'] = "' . __('put this string in the existing map short code to control this map', 'osm') . '";
-			  </script>
-
-
-			  ';
-			
-
+						
 			$FileColorListArray = array();
 			$FileLinkArray = array();
 			$FileTitleArray = array();
@@ -343,7 +327,7 @@ if ($bckgrndimg !== 'no') {
 
 				foreach ($FileTitleArray as $key => $val) {
 					$output .= '
-						<span id="layerBox' . $key . $MapName . '" class="layerBoxes layerOf' . $MapName . '" data-map="' . $MapName . '" data-layer="' . $key . '" data-active="false" data-layer_title="' . trim($val) . '">';
+						<span id="layerBox' . $key . $MapName . '" class="layerBoxes layerOf' . $MapName . '" data-map="' . $MapName . '" data-layer="' . $key . '" data-active="false" data-layer_title="' . trim($val) . '"></span>';
 
 				}
 				}

@@ -25,7 +25,7 @@ function osm_enqueue_scripts_styles() {
    wp_enqueue_script('Osm_OL_3', Osm_OL_3_LibraryLocation, array(), null, false); 
   wp_enqueue_script('Osm_OL_3ext', Osm_OL_3_Ext_LibraryLocation, array('Osm_OL_3'), null, false);  
   wp_enqueue_script('OSM_metabox_event_Script', Osm_OL_3_MetaboxEvents_LibraryLocation, array('Osm_OL_3'), null, false); 
-  wp_enqueue_script('Osm_map_startup_3', Osm_map_startup_LibraryLocation, array('Osm_OL_3', 'Osm_OL_3ext'), null, false);
+    wp_enqueue_script('Osm_map_startup_3', Osm_map_startup_LibraryLocation, array('jquery', 'Osm_OL_3', 'Osm_OL_3ext'), null, false);
   wp_enqueue_script('OSM_metabox-script',Osm_OL_3_Metabox_LibraryLocation, array('jquery') );
     
   wp_enqueue_script('ajax-script', plugins_url( '/js/osm-plugin-lib.js', __FILE__ ), array('jquery'), null, true );
@@ -385,7 +385,7 @@ At the top of this panel / metabox you find tabs which allow you to generate a s
     <ol>
         <li><?php esc_html_e('For advanced samples visit the', 'osm'); ?> <a target="_blank" href="http://wp-osm-plugin.hyumika.com">osm-plugin page</a>.</li>
         <li><?php esc_html_e('For questions, bugs and other feedback visit the', 'osm'); ?> <a target="_blank" href="https://wp-osm-plugin.hyumika.com/survey/">EN | DE feedback</a></li>
-        <li><?php esc_html_e('Follow us on Twitter:', 'osm'); ?> <a target="_blank" href="https://twitter.com/wp_osm_plugin">wp-osm-plugin</a>.</li>
+        <li><?php esc_html_e('Follow us on Bluesky:', 'osm'); ?> <a target="_blank" href="https://bsky.app/profile/mika-official.bsky.social">wp-osm-plugin</a>.</li>
         <li><?php esc_html_e('Download the latest version at WordPress.org', 'osm'); ?> <a target="_blank" href="http://wordpress.org/extend/plugins/osm/">osm-plugin download</a>.</li>
     </ol>
 </div> <!-- id="tab_about" -->

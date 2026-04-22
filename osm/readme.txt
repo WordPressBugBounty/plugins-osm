@@ -3,7 +3,7 @@ Contributors: MiKa
 Tags: osm, OpenStreetMap, KML, GPX, OpenSeaMap
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 6.2.1
+Stable tag: 6.2.3
 License: GPLv2
 Requires PHP: 5.3
 
@@ -21,7 +21,7 @@ If you want detailed information about the OSM plugin, visit these pages:
 
 * Homepage: [WP-OSM-Plugin](https://wp-osm-plugin.hyumika.com/ "OSM-plugin")
 * Forum: [EN|DE](https://wp-osm-plugin.hyumika.com/survey/ "OSM-plugin feedback / feature request EN|DE")
-* Twitter: [@WP_OSM_Plugin](https://twitter.com/wp_osm_plugin "@WP_OSM_Plugin")
+* Bluesky: [@mika-official.bsky.social](https://bsky.app/profile/mika-official.bsky.social "@mika-official.bsky.social")
 
 Features of the WP OSM plugin:
 

@@ -3,7 +3,7 @@
 Plugin Name: OSM
 Plugin URI: https://wp-osm-plugin.hyumika.com
 Description: Embed OpenStreetMap-based maps in posts, pages, and widgets, including marker, GPX, and KML support.
-Version: 6.2.3
+Version: 6.2.4
 Author: MiKa
 Author URI: https://www.hyumika.com
 Requires at least: 5.0
@@ -31,7 +31,7 @@ Domain Path: /languages
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define ("PLUGIN_VER", "V6.2.3");
+define ("PLUGIN_VER", "V6.2.4");
 
 // modify anything about the marker for tagged posts here
 // instead of the coding.

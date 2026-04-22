@@ -1,5 +1,5 @@
 <?php
-// replace >True< with >False< if you want to disable it
+// replace >True< with >False< if you want to disable  it
 define ("OSM_enable_Ajax", True);
 
 // change them for shortcode generatgor & geotagger
